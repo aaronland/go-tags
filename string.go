@@ -46,27 +46,42 @@ func CleanStringTag(raw string) (string, error) {
 
 	clean := make([]string, 0)
 
-	alpha_numeric := [][]int{
+	valid := [][]int{
 		[]int{48, 57},  // (0-9)
 		[]int{65, 90},  // (A-Z)
 		[]int{97, 122}, // (a-z)
+		[]int{45},      // -
+		[]int{58},      // :
+		[]int{61},      // =
+		[]int{95},      // _
 	}
 
 	for _, r := range raw {
 
-		is_alpha_numeric := false
+		is_valid := false
 
-		for _, bookends := range alpha_numeric {
+		for _, bookends := range valid {
 
 			r_int := int(r)
 
-			if r_int >= bookends[0] && r_int <= bookends[1] {
-				is_alpha_numeric = true
+			switch len(bookends) {
+			case 1:
+
+				if r_int == bookends[0] {
+					is_valid = true
+				}
+			default:
+				if r_int >= bookends[0] && r_int <= bookends[1] {
+					is_valid = true
+				}
+			}
+
+			if is_valid {
 				break
 			}
 		}
 
-		if !is_alpha_numeric {
+		if !is_valid {
 			continue
 		}
 

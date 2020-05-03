@@ -6,21 +6,25 @@ import (
 
 func TestStringTag(tt *testing.T) {
 
-	raw := "Hello, World"
-	clean := "helloworld"
-
-	t, err := NewStringTag(raw)
-
-	if err != nil {
-		tt.Fatal(err)
+	tests := map[string]string{
+		"Hello, World": "helloworld",
+		"foo:bar=baz":  "foo:bar=baz",
 	}
 
-	if t.Raw() != raw {
-		tt.Fatal("Invalid raw tag")
-	}
+	for raw, clean := range tests {
 
-	if t.Clean() != clean {
-		tt.Fatal("Invalid clean tag")
-	}
+		t, err := NewStringTag(raw)
 
+		if err != nil {
+			tt.Fatal(err)
+		}
+
+		if t.Raw() != raw {
+			tt.Fatalf("Invalid raw tag, '%s'. Expected '%s'.", t.Raw(), raw)
+		}
+
+		if t.Clean() != clean {
+			tt.Fatalf("Invalid clean tag, '%s'. Expected '%s'.", t.Clean(), clean)
+		}
+	}
 }
