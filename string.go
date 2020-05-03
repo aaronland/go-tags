@@ -1,14 +1,36 @@
 package tags
 
 import (
+	"errors"
 	"fmt"
 	"github.com/whosonfirst/go-sanitize"
+	"regexp"
 	"strings"
 )
 
 type StringTag struct {
-	raw   string
-	clean string
+	raw           string
+	clean         string
+	is_machinetag bool
+	triple        [3]string
+}
+
+var re_machinetag *regexp.Regexp
+var valid_clean [][]int
+
+func init() {
+
+	valid_clean = [][]int{
+		[]int{48, 57},  // (0-9)
+		[]int{65, 90},  // (A-Z)
+		[]int{97, 122}, // (a-z)
+		[]int{45},      // -
+		[]int{58},      // :
+		[]int{61},      // =
+		[]int{95},      // _
+	}
+
+	re_machinetag = regexp.MustCompile(`^([a-zA-Z][a-zA-Z0-9\-\_]+):([a-zA-Z][a-zA-Z0-9\-\_]+)=(.*)$`)
 }
 
 func NewStringTag(raw string) (Tag, error) {
@@ -26,9 +48,21 @@ func NewStringTag(raw string) (Tag, error) {
 		return nil, err
 	}
 
+	if len(clean) < 3 {
+		return nil, errors.New("Invalid tag")
+	}
+
 	t := &StringTag{
 		raw:   raw,
 		clean: clean,
+	}
+
+	m := re_machinetag.FindStringSubmatch(sanitized)
+
+	if len(m) == 4 {
+
+		t.is_machinetag = true
+		t.triple = [3]string{m[1], m[2], m[3]}
 	}
 
 	return t, nil
@@ -42,25 +76,46 @@ func (t *StringTag) Clean() string {
 	return t.clean
 }
 
+func (t *StringTag) IsMachineTag() bool {
+	return t.is_machinetag
+}
+
+func (t *StringTag) Namespace() (string, error) {
+
+	if !t.IsMachineTag() {
+		return "", NotMachineTagError{}
+	}
+
+	return t.triple[0], nil
+}
+
+func (t *StringTag) Predicate() (string, error) {
+
+	if !t.IsMachineTag() {
+		return "", NotMachineTagError{}
+	}
+
+	return t.triple[1], nil
+}
+
+func (t *StringTag) Value() (string, error) {
+
+	if !t.IsMachineTag() {
+		return "", NotMachineTagError{}
+	}
+
+	return t.triple[2], nil
+}
+
 func CleanStringTag(raw string) (string, error) {
 
 	clean := make([]string, 0)
-
-	valid := [][]int{
-		[]int{48, 57},  // (0-9)
-		[]int{65, 90},  // (A-Z)
-		[]int{97, 122}, // (a-z)
-		[]int{45},      // -
-		[]int{58},      // :
-		[]int{61},      // =
-		[]int{95},      // _
-	}
 
 	for _, r := range raw {
 
 		is_valid := false
 
-		for _, bookends := range valid {
+		for _, bookends := range valid_clean {
 
 			r_int := int(r)
 
