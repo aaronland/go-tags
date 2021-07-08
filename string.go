@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// type StringTag implements the Tag interface for string-based tags.
 type StringTag struct {
 	raw           string
 	clean         string
