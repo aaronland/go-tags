@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestDeriveTagsFromString(t *testing.T) {
+func TestDeriveHashTagsFromString(t *testing.T) {
 
 	t1, err := NewStringTag("test")
 
@@ -59,7 +59,7 @@ Some text
 
 	for str, expected_tags := range tests {
 
-		tags, err := DeriveTagsFromString(str)
+		tags, err := DeriveHashTagsFromString(str)
 
 		if err != nil {
 			t.Fatalf("Failed to derive tags from string '%s', %v", str, err)

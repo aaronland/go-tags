@@ -5,8 +5,9 @@ import (
 	"unicode"
 )
 
-// DeriveTagsFromString returns the list of `Tag` instances contained in 'body'
-func DeriveTagsFromString(body string) ([]Tag, error) {
+// DeriveHashTagsFromString returns the list of `Tag` instances derived from "hashtags" (inclusive of regular tags
+// and machine tags) contained in 'body'. As of this writing all matches are parsed using the `NewStringTag` method.
+func DeriveHashTagsFromString(body string) ([]Tag, error) {
 
 	tags := make([]Tag, 0)
 	str_t := ""
