@@ -3,9 +3,10 @@ package tags
 import (
 	"errors"
 	"fmt"
-	"github.com/whosonfirst/go-sanitize"
 	"regexp"
 	"strings"
+
+	"github.com/whosonfirst/go-sanitize"
 )
 
 // type StringTag implements the Tag interface for string-based tags.
